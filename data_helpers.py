@@ -100,7 +100,7 @@ def load_data_and_labels(path):
     return x_text, labels
 
 
-def batch_iter(data, batch_size, num_epochs, shuffle=True):
+def batch_iter(data, batch_size, num_epochs, shuffle=False):
     """
     Generates a batch iterator for a dataset.
     """
