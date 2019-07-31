@@ -16,11 +16,9 @@ from sklearn.metrics import classification_report
 from utils import get_logger
 warnings.filterwarnings("ignore", category=sklearn.exceptions.UndefinedMetricWarning)
 
-tf.app.flags.DEFINE_string("log_file",     "train.log",    "File for log")
-FLAGS = tf.app.flags.FLAGS
 
 def train():
-    log_file_name = datetime.datetime + FLAGS.log_file
+    log_file_name = time.strftime("%Y-%m-%d-%H%M%S", time.localtime()) + FLAGS.log_file
     log_path = os.path.join("log", log_file_name)
     logger = get_logger(log_path)
 
@@ -138,7 +136,7 @@ def train():
 
                 # Evaluation
                 if step % FLAGS.evaluate_every == 0:
-                    print("\nEvaluation:")
+                    logger.info("\nEvaluation:")
                     feed_dict = {
                         model.input_text: x_dev,
                         model.input_y: y_dev,

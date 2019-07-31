@@ -72,6 +72,7 @@ def parse_args():
                         type=bool, help="Log placement of ops on devices")
     parser.add_argument("--gpu_allow_growth", default=True,
                         type=bool, help="Allow gpu memory growth")
+    parser.add_argument("--log_file", default="train.log", type=str, help="name for log")
 
     if len(sys.argv) == 0:
         parser.print_help()
