@@ -12,6 +12,7 @@ from configure import FLAGS
 from sklearn.metrics import f1_score
 import warnings
 import sklearn.exceptions
+from sklearn.metrics import average_precision_score, classification_report
 warnings.filterwarnings("ignore", category=sklearn.exceptions.UndefinedMetricWarning)
 
 
@@ -146,6 +147,10 @@ def train():
                     f1 = f1_score(np.argmax(y_dev, axis=1), predictions, labels=np.array(range(1, 19)), average="macro")
                     print("{}: step {}, loss {:g}, acc {:g}".format(time_str, step, loss, accuracy))
                     print("[UNOFFICIAL] (2*9+1)-Way Macro-Average F1 Score (excluding Other): {:g}\n".format(f1))
+                    # 打印每种关系的PRF
+                    target_names = utils.class2label.keys();
+                    repo = classification_report(y_dev[:len(predictions)], predictions, target_names=target_names)
+                    print(repo)
 
                     # Model checkpoint
                     if best_f1 < f1:
