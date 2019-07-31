@@ -1,4 +1,5 @@
 import numpy as np
+import logging
 
 
 class2label = {}
@@ -54,3 +55,17 @@ def load_glove(embedding_path, embedding_dim, vocab):
         if idx != 0:
             initW[idx] = embedding
     return initW
+
+def get_logger(log_file):
+    logger = logging.getLogger(log_file)
+    logger.setLevel(logging.DEBUG)
+    fh = logging.FileHandler(log_file)
+    fh.setLevel(logging.DEBUG)
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    ch.setFormatter(formatter)
+    fh.setFormatter(formatter)
+    logger.addHandler(ch)
+    logger.addHandler(fh)
+    return logger

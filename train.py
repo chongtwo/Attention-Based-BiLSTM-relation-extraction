@@ -12,11 +12,18 @@ from configure import FLAGS
 from sklearn.metrics import f1_score
 import warnings
 import sklearn.exceptions
-from sklearn.metrics import average_precision_score, classification_report
+from sklearn.metrics import classification_report
+from utils import get_logger
 warnings.filterwarnings("ignore", category=sklearn.exceptions.UndefinedMetricWarning)
 
+tf.app.flags.DEFINE_string("log_file",     "train.log",    "File for log")
+FLAGS = tf.app.flags.FLAGS
 
 def train():
+    log_file_name = datetime.datetime + FLAGS.log_file
+    log_path = os.path.join("log", log_file_name)
+    logger = get_logger(log_path)
+
     with tf.device('/cpu:0'):
         x_text, y = data_helpers.load_data_and_labels(FLAGS.train_path)
 
@@ -28,10 +35,10 @@ def train():
     # dimension = FLAGS.max_sentence_length
     vocab_processor = tf.contrib.learn.preprocessing.VocabularyProcessor(FLAGS.max_sentence_length)
     x = np.array(list(vocab_processor.fit_transform(x_text)))
-    print("Text Vocabulary Size: {:d}".format(len(vocab_processor.vocabulary_)))
-    print("x = {0}".format(x.shape))  # x.shape=(样本数，最大句子长度)
-    print("y = {0}".format(y.shape))  # y.shape=(样本数，标签数)
-    print("")
+    logger.info("Text Vocabulary Size: {:d}".format(len(vocab_processor.vocabulary_)))
+    logger.info("x = {0}".format(x.shape))  # x.shape=(样本数，最大句子长度)
+    logger.info("y = {0}".format(y.shape))  # y.shape=(样本数，标签数)
+    logger.info("")
 
     # Randomly shuffle data to split into train and test(dev)
     np.random.seed(10)
@@ -44,7 +51,7 @@ def train():
     dev_sample_index = -1 * int(FLAGS.dev_sample_percentage * float(len(y)))
     x_train, x_dev = x_shuffled[:dev_sample_index], x_shuffled[dev_sample_index:]
     y_train, y_dev = y_shuffled[:dev_sample_index], y_shuffled[dev_sample_index:]
-    print("Train/Dev split: {:d}/{:d}\n".format(len(y_train), len(y_dev)))
+    logger.info("Train/Dev split: {:d}/{:d}\n".format(len(y_train), len(y_dev)))
 
     with tf.Graph().as_default():
         session_conf = tf.ConfigProto(
@@ -71,7 +78,7 @@ def train():
             # Output directory for models and summaries
             timestamp = str(int(time.time()))
             out_dir = os.path.abspath(os.path.join(os.path.curdir, "runs", timestamp))
-            print("Writing to {}\n".format(out_dir))
+            logger.info("Writing to {}\n".format(out_dir))
 
             # Summaries for loss and accuracy
             loss_summary = tf.summary.scalar("loss", model.loss)
@@ -104,7 +111,7 @@ def train():
             if FLAGS.embedding_path:
                 pretrain_W = utils.load_glove(FLAGS.embedding_path, FLAGS.embedding_dim, vocab_processor)
                 sess.run(model.W_text.assign(pretrain_W))
-                print("Success to load pre-trained word2vec model!\n")
+                logger.info("Success to load pre-trained word2vec model!\n")
 
             # Generate batches
             batches = data_helpers.batch_iter(list(zip(x_train, y_train)), FLAGS.batch_size, FLAGS.num_epochs)
@@ -127,7 +134,7 @@ def train():
                 # Training log display
                 if step % FLAGS.display_every == 0:
                     time_str = datetime.datetime.now().isoformat()
-                    print("{}: step {}, loss {:g}, acc {:g}".format(time_str, step, loss, accuracy))
+                    logger.info("{}: step {}, loss {:g}, acc {:g}".format(time_str, step, loss, accuracy))
 
                 # Evaluation
                 if step % FLAGS.evaluate_every == 0:
@@ -145,18 +152,18 @@ def train():
 
                     time_str = datetime.datetime.now().isoformat()
                     f1 = f1_score(np.argmax(y_dev, axis=1), predictions, labels=np.array(range(1, 19)), average="macro")
-                    print("{}: step {}, loss {:g}, acc {:g}".format(time_str, step, loss, accuracy))
-                    print("[UNOFFICIAL] (2*9+1)-Way Macro-Average F1 Score (excluding Other): {:g}\n".format(f1))
+                    logger.info("{}: step {}, loss {:g}, acc {:g}".format(time_str, step, loss, accuracy))
+                    logger.info("[UNOFFICIAL] (2*9+1)-Way Macro-Average F1 Score (excluding Other): {:g}\n".format(f1))
                     # 打印每种关系的PRF
                     target_names = utils.class2label.keys();
-                    repo = classification_report(y_dev[:len(predictions)], predictions, target_names=target_names)
+                    repo = classification_report(np.argmax(y_dev, axis=1)[:len(predictions)], predictions, target_names=target_names)
                     print(repo)
 
                     # Model checkpoint
                     if best_f1 < f1:
                         best_f1 = f1
                         path = saver.save(sess, checkpoint_prefix + "-{:.3g}".format(best_f1), global_step=step)
-                        print("Saved model checkpoint to {}\n".format(path))
+                        logger.info("Saved model checkpoint to {}\n".format(path))
 
 
 def main(_):
