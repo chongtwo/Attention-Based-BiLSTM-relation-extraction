@@ -20,7 +20,7 @@ def train():
         x_text, y = data_helpers.load_data_and_labels(FLAGS.train_path)
 
     # Build vocabulary
-    # Example: x_text[3] = "A misty <e1>ridge</e1> uprises from the <e2>surge</e2>."
+    # Example: x_text[3] = "A misty <e1>ridge</e1> uprises from the <e2>surge</e2>"
     # ['a misty ridge uprises from the surge <UNK> <UNK> ... <UNK>']
     # =>
     # [27 39 40 41 42  1 43  0  0 ... 0]
@@ -28,8 +28,8 @@ def train():
     vocab_processor = tf.contrib.learn.preprocessing.VocabularyProcessor(FLAGS.max_sentence_length)
     x = np.array(list(vocab_processor.fit_transform(x_text)))
     print("Text Vocabulary Size: {:d}".format(len(vocab_processor.vocabulary_)))
-    print("x = {0}".format(x.shape))
-    print("y = {0}".format(y.shape))
+    print("x = {0}".format(x.shape))  # x.shape=(样本数，最大句子长度)
+    print("y = {0}".format(y.shape))  # y.shape=(样本数，标签数)
     print("")
 
     # Randomly shuffle data to split into train and test(dev)

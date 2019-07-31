@@ -9,18 +9,23 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     # Data loading params
-    parser.add_argument("--train_path", default="SemEval2010_task8_all_data/SemEval2010_task8_training/TRAIN_FILE.TXT",
+    # parser.add_argument("--train_path", default="SemEval2010_task8_all_data/SemEval2010_task8_training/TRAIN_FILE.TXT",
+    #                     type=str, help="Path of train data")
+    # parser.add_argument("--test_path",
+    #                     default="SemEval2010_task8_all_data/SemEval2010_task8_testing_keys/TEST_FILE_FULL.TXT",
+    #                     type=str, help="Path of test data")
+    parser.add_argument("--train_path", default="myData/train.txt",
                         type=str, help="Path of train data")
-    parser.add_argument("--test_path", default="SemEval2010_task8_all_data/SemEval2010_task8_testing_keys/TEST_FILE_FULL.TXT",
+    parser.add_argument("--test_path", default="myData/test.txt",
                         type=str, help="Path of test data")
-    parser.add_argument("--max_sentence_length", default=90,
+    parser.add_argument("--max_sentence_length", default=202,
                         type=int, help="Max sentence length in data")
     parser.add_argument("--dev_sample_percentage", default=0.1,
                         type=float, help="Percentage of the training data to use for validation")
 
     # Model Hyper-parameters
     # Embeddings
-    parser.add_argument("--embedding_path", default=None,
+    parser.add_argument("--embedding_path", default="myData/vec.txt",
                         type=str, help="Path of pre-trained word embeddings (glove)")
     parser.add_argument("--embedding_dim", default=100,
                         type=int, help="Dimensionality of word embedding (default: 100)")
@@ -43,7 +48,7 @@ def parse_args():
     # Training parameters
     parser.add_argument("--batch_size", default=10,
                         type=int, help="Batch Size (default: 10)")
-    parser.add_argument("--num_epochs", default=100,
+    parser.add_argument("--num_epochs", default=50,
                         type=int, help="Number of training epochs (Default: 100)")
     parser.add_argument("--display_every", default=10,
                         type=int, help="Number of iterations to display training information")

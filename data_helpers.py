@@ -48,29 +48,41 @@ def clean_str(text):
 
 def load_data_and_labels(path):
     data = []
-    lines = [line.strip() for line in open(path)]
+    lines = [line.strip() for line in open(path, encoding="utf8")]
     max_sentence_length = 0
-    for idx in range(0, len(lines), 4):
+    # for idx in range(0, len(lines), 4):  # 给的数据是每4行一组，idx指向第一行
+    for idx in range(0, len(lines), 2):
         id = lines[idx].split("\t")[0]
         relation = lines[idx + 1]
 
-        sentence = lines[idx].split("\t")[1][1:-1]
-        sentence = sentence.replace('<e1>', ' _e11_ ')
-        sentence = sentence.replace('</e1>', ' _e12_ ')
-        sentence = sentence.replace('<e2>', ' _e21_ ')
-        sentence = sentence.replace('</e2>', ' _e22_ ')
+        # sentence = lines[idx].split("\t")[1][1:-1]  # 1：-1是为了去掉引号
+        sentence = lines[idx].split("\t")[1]
+        # sentence = sentence.replace('<e1>', ' _e11_ ')
+        # sentence = sentence.replace('</e1>', ' _e12_ ')
+        # sentence = sentence.replace('<e2>', ' _e21_ ')
+        # sentence = sentence.replace('</e2>', ' _e22_ ')
 
-        sentence = clean_str(sentence)
-        tokens = nltk.word_tokenize(sentence)
-        if max_sentence_length < len(tokens):
-            max_sentence_length = len(tokens)
-        sentence = " ".join(tokens)
+        # sentence = clean_str(sentence)
+        # tokens = nltk.word_tokenize(sentence)  # 用nltk做了分词
+        # 需要自己做分词，把' _e11_ '' _e12_ '' _e21_ '' _e22_ '分成一个字
+        # if max_sentence_length < len(tokens):
+        #     max_sentence_length = len(tokens)
+        if max_sentence_length < len(sentence):
+            max_sentence_length = len(sentence)
+        sentence = " ".join(sentence[i] for i in range(len(sentence)))
+        sentence = sentence.replace('< e 1 >', 'e11')
+        sentence = sentence.replace('< / e 1 >','e12')
+        sentence = sentence.replace('< e 2 >', 'e21')
+        sentence = sentence.replace('< / e 2 >', 'e22')
 
         data.append([id, sentence, relation])
+        # data = [ [id, sentence, relation],
+        #            [id, sentence, relation]]
 
     print(path)
     print("max sentence length = {}\n".format(max_sentence_length))
 
+    utils.load_relation()
     df = pd.DataFrame(data=data, columns=["id", "sentence", "relation"])
     df['label'] = [utils.class2label[r] for r in df['relation']]
 
@@ -124,4 +136,4 @@ if __name__ == "__main__":
     trainFile = 'SemEval2010_task8_all_data/SemEval2010_task8_training/TRAIN_FILE.TXT'
     testFile = 'SemEval2010_task8_all_data/SemEval2010_task8_testing_keys/TEST_FILE_FULL.TXT'
 
-    load_data_and_labels(testFile)
+    load_data_and_labels(trainFile)
