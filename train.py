@@ -149,7 +149,8 @@ def train():
                     print("[UNOFFICIAL] (2*9+1)-Way Macro-Average F1 Score (excluding Other): {:g}\n".format(f1))
                     # 打印每种关系的PRF
                     target_names = utils.class2label.keys();
-                    repo = classification_report(y_dev[:len(predictions)], predictions, target_names=target_names)
+                    labels = list(utils.label2class.keys());
+                    repo = classification_report(np.argmax(y_dev, axis=1)[:len(predictions)], predictions, target_names=target_names, labels=labels)
                     print(repo)
 
                     # Model checkpoint
