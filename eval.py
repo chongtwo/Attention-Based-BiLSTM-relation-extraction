@@ -2,22 +2,28 @@ import tensorflow as tf
 import numpy as np
 import os
 import subprocess
-
+from utils import get_logger
 import data_helpers
 import utils
 from configure import FLAGS
-
+from sklearn.metrics import classification_report
+import time
 
 def eval():
+    log_file_name = time.strftime("%Y-%m-%d-%H%M%S", time.localtime()) + FLAGS.test_log_file
+    log_path = os.path.join("log", log_file_name)
+    logger = get_logger(log_path)
     with tf.device('/cpu:0'):
-        x_text, y = data_helpers.load_data_and_labels(FLAGS.test_path)
+        x_text, y, x_id = data_helpers.load_data_and_labels(FLAGS.test_path)
 
     # Map data into vocabulary
-    text_path = os.path.join(FLAGS.checkpoint_dir, "..", "vocab")
+    text_path = os.path.join(FLAGS.checkpoint_dir, "..", "vocab")  # ..是往上走一层的意思
     text_vocab_processor = tf.contrib.learn.preprocessing.VocabularyProcessor.restore(text_path)
-    x = np.array(list(text_vocab_processor.transform(x_text)))
+    x = np.array(list(text_vocab_processor.transform(x_text))) # 将文字转为id
 
     checkpoint_file = tf.train.latest_checkpoint(FLAGS.checkpoint_dir)
+    logger.info("checkpoint dir:{}\t".format(FLAGS.checkpoint_dir))
+    logger.info("checkpoint file:{}\t".format(checkpoint_file))
 
     graph = tf.Graph()
     with graph.as_default():
@@ -60,18 +66,24 @@ def eval():
             prediction_file = open(prediction_path, 'w')
             truth_file = open(truth_path, 'w')
             for i in range(len(preds)):
-                prediction_file.write("{}\t{}\n".format(i, utils.label2class[preds[i]]))
-                truth_file.write("{}\t{}\n".format(i, utils.label2class[truths[i]]))
+                prediction_file.write("{}\t{}\n".format(x_id[i], utils.label2class[preds[i]]))
+                truth_file.write("{}\t{}\n".format(x_id[i], utils.label2class[truths[i]]))
             prediction_file.close()
             truth_file.close()
+            # 打印每种关系的PRF
+            target_names = utils.class2label.keys();
+            labels = list(utils.label2class.keys());
+            repo = classification_report(truths, preds,
+                                         target_names=target_names, labels=labels)
+            logger.info(repo)
 
-            perl_path = os.path.join(os.path.curdir,
-                                     "SemEval2010_task8_all_data",
-                                     "SemEval2010_task8_scorer-v1.2",
-                                     "semeval2010_task8_scorer-v1.2.pl")
-            process = subprocess.Popen(["perl", perl_path, prediction_path, truth_path], stdout=subprocess.PIPE)
-            for line in str(process.communicate()[0].decode("utf-8")).split("\\n"):
-                print(line)
+            # perl_path = os.path.join(os.path.curdir,
+            #                          "SemEval2010_task8_all_data",
+            #                          "SemEval2010_task8_scorer-v1.2",
+            #                          "semeval2010_task8_scorer-v1.2.pl")
+            # process = subprocess.Popen(["perl", perl_path, prediction_path, truth_path], stdout=subprocess.PIPE)
+            # for line in str(process.communicate()[0].decode("utf-8")).split("\\n"):
+            #     print(line)
 
 
 def main(_):

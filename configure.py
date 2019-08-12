@@ -62,7 +62,7 @@ def parse_args():
                         type=float, help="Decay rate for learning rate (Default: 0.9)")
 
     # Testing parameters
-    parser.add_argument("--checkpoint_dir", default="",
+    parser.add_argument("--checkpoint_dir", default="runs/1564472267/checkpoints",
                         type=str, help="Checkpoint directory from training run")
 
     # Misc Parameters
@@ -72,7 +72,8 @@ def parse_args():
                         type=bool, help="Log placement of ops on devices")
     parser.add_argument("--gpu_allow_growth", default=True,
                         type=bool, help="Allow gpu memory growth")
-    parser.add_argument("--log_file", default="train.log", type=str, help="name for log")
+    parser.add_argument("--train_log_file", default="train.log", type=str, help="name for train log")
+    parser.add_argument("--test_log_file", default="test.log", type=str, help="name for test log")
 
     if len(sys.argv) == 0:
         parser.print_help()
