@@ -1,0 +1,15 @@
+2019-08-12 13:37:35,966 - log\2019-08-12-133732test.log - INFO - checkpoint dir:runs/1564554593/checkpoints	
+2019-08-12 13:37:35,966 - log\2019-08-12-133732test.log - INFO - checkpoint file:D:\MyNLP\Attention-Based-BiLSTM-relation-extraction\runs\1564554593\checkpoints\model-0.217-23300	
+2019-08-12 13:37:43,712 - log\2019-08-12-133732test.log - INFO -
+                precision    recall  f1-score   support
+          NA       0.99      0.98      0.98      2211
+          At       0.94      0.91      0.93       211
+    Specifiy       0.00      0.00      0.00         0
+      SizeOf       0.94      0.95      0.95        86
+     Related       0.83      0.93      0.88       105
+      Negate       0.96      0.95      0.95        76
+
+   micro avg       0.97      0.97      0.97      2689
+   macro avg       0.78      0.79      0.78      2689
+weighted avg       0.97      0.97      0.97      2689
+

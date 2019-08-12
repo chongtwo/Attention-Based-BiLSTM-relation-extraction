@@ -62,7 +62,7 @@ def parse_args():
                         type=float, help="Decay rate for learning rate (Default: 0.9)")
 
     # Testing parameters
-    parser.add_argument("--checkpoint_dir", default="runs/1564472267/checkpoints",
+    parser.add_argument("--checkpoint_dir", default="runs/1564554593/checkpoints",
                         type=str, help="Checkpoint directory from training run")
 
     # Misc Parameters
