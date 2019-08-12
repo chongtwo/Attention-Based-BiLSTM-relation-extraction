@@ -18,7 +18,7 @@ warnings.filterwarnings("ignore", category=sklearn.exceptions.UndefinedMetricWar
 
 
 def train():
-    log_file_name = time.strftime("%Y-%m-%d-%H%M%S", time.localtime()) + FLAGS.log_file
+    log_file_name = time.strftime("%Y-%m-%d-%H%M%S", time.localtime()) + FLAGS.train_log_file
     log_path = os.path.join("log", log_file_name)
     logger = get_logger(log_path)
 
@@ -69,8 +69,8 @@ def train():
             # Define Training procedure
             global_step = tf.Variable(0, name="global_step", trainable=False)
             optimizer = tf.train.AdadeltaOptimizer(FLAGS.learning_rate, FLAGS.decay_rate, 1e-6)
-            gvs = optimizer.compute_gradients(model.loss)
-            capped_gvs = [(tf.clip_by_value(grad, -1.0, 1.0), var) for grad, var in gvs]
+            gvs = optimizer.compute_gradients(model.loss) # 计算loss的梯度，返回一个以元组(gradient, variable)组成的列表
+            capped_gvs = [(tf.clip_by_value(grad, -1.0, 1.0), var) for grad, var in gvs] # tf.clip_by_value(A, min, max)：输入一个张量A，把A中的每一个元素的值都压缩在min和max之间。小于min的让它等于min，大于max的元素的值等于max
             train_op = optimizer.apply_gradients(capped_gvs, global_step=global_step)
 
             # Output directory for models and summaries
